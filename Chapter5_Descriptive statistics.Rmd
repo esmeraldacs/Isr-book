@@ -1,0 +1,205 @@
+---
+title: "Chapter 5. Descriptive statistics"
+output: html_document
+date: "2023-05-03"
+---
+
+Descriptive statistics: summarising the data in a compact, easily understood fashion.
+
+afl.finalists names of all 400 teams that played in all 200 final matches played during the period 1987 to 2010
+
+afrl.margins: winning marging (number of points) for all 176 games played during the 2010 season.
+
+```{r}
+load("data/aflsmall.Rdata")
+library(lsr)
+who() # in lsr package is to see what variales are stored in the file
+
+head(afl.margins)
+head(afl.finalists)
+```
+
+
+```{r}
+hist(afl.margins)
+```
+
+# 5.1. Measures of central tendency
+
+Most frequen mean, median and mode, ocasionally trimmed mean.
+Notation of the book:
+
+```{r f_mean_formula,echo=FALSE, fig.align='center', fig.cap='Mean formula',fig.width=20}
+knitr::include_graphics("images/chapter 5 mean formula.jpg")
+```
+mean: average
+median: middle value
+
+```{r}
+mean(afl.margins)
+median(afl.margins)
+```
+
+## 5.1.4 Mean or median? What's the difference?
+
+* If your data are nominal scale, you probably shouldn’t be using either the mean or the median. Both
+the mean and the median rely on the idea that the numbers assigned to values are meaningful. If
+the numbering scheme is arbitrary, then it’s probably best to use the mode (Section 5.1.7) instead.
+
+* If your data are ordinal scale, you’re more likely to want to use the median than the mean. The
+median only makes use of the order information in your data (i.e., which numbers are bigger), but
+doesn’t depend on the precise numbers involved. That’s exactly the situation that applies when
+your data are ordinal scale. The mean, on the other hand, makes use of the precise numeric values
+assigned to the observations, so it’s not really appropriate for ordinal data.
+
+* For interval and ratio scale data, either one is generally acceptable. Which one you pick depends a
+bit on what you’re trying to achieve. The mean has the advantage that it uses all the information
+in the data (which is useful when you don’t have a lot of data), but it’s very sensitive to extreme
+values, as we’ll see in Section 5.1.6.
+
+```{r mean_median,echo=FALSE, fig.align='center', fig.cap='Figure 5.2. An illustration of the difference between how the mean and the median should be interpreted',fig.width=20}
+knitr::include_graphics("images/Chapter 5 figure 5.2 Mean and medina.png")
+```
+
+## 5.1.6 Trimmed mean
+
+When faced with a situation where some of the most extreme-valued observations might not be quite
+trustworthy, the mean is not necessarily a good measure of central tendency. It is highly sensitive to one
+or two extreme values, and is thus not considered to be a robust measure. One remedy that we’ve seen
+is to use the median. A more general solution is to use a “trimmed mean”. To calculate a trimmed mean,
+what you do is “discard” the most extreme examples on both ends (i.e., the largest and the smallest), and
+then take the mean of everything else. The goal is to preserve the best characteristics of the mean and the
+median: just like a median, you aren’t highly influenced by extreme outliers, but like the mean, you “use”
+more than one of the observations.
+```{r}
+dataset<- c(-15,2,3,4,5,6,7,8,9,12)
+
+mean(dataset)
+median(dataset)
+
+```
+
+```{r}
+mean(dataset,trim = 0.1) #10% treimmed mean
+mean(dataset,trim = 0.05) #5% trimmed mean
+```
+
+## Mode
+
+The value that occurs most frequently.
+```{r}
+table(afl.finalists)
+
+modeOf(afl.finalists)
+
+maxFreq(afl.finalists)
+```
+
+# 5.2 Measures of variability
+
+## 5.2.1 Range
+```{r}
+range(afl.margins)
+```
+
+## 5.2.2 Interqurtile range
+
+Quantile (more commonly called percentiles) is:
+The 10th percentile of a data set is the smallest number x such that 10% of the data is less than x. 
+The median of the data set is its 50th quantile/percentile
+
+```{r}
+median(afl.margins)
+
+quantile(afl.margins,probs = 0.5)
+
+quantile(afl.margins, probs = c(0.25,0.75))
+```
+
+```{r}
+50.5-12.75
+
+IQR(afl.margins)
+
+```
+
+
+## Mean absolute deviation
+
+
+```{r mean_absolute_dev,echo=FALSE, fig.align='center', fig.cap='Mean absolute deviation calculation',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Mean absolute deviation.png")
+```
+
+```{r}
+X <- c(56, 31,56,8,32) # enter the data
+X.bar <- mean( X ) # step 1. the mean of the data
+AD <- abs( X - X.bar ) # step 2. the absolute deviations from the mean
+AAD <- mean( AD ) # step 3. the mean absolute deviations
+print( AAD )
+
+aad(X) #Isr package function
+```
+
+## 5.2.4 Variance
+
+```{r variance,echo=FALSE, fig.align='center', fig.cap='Variance calculation',fig.width=20}
+knitr::include_graphics("images/Chapter5 Variance.png")
+```
+
+
+```{r}
+( 376.36 + 31.36 + 376.36 + 817.96 + 21.16 ) / 5
+
+mean( (X - mean(X) )^2)
+
+var(X)
+
+
+```
+
+```{r variance sample,echo=FALSE, fig.align='center', fig.cap='Variance sample calculation',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Variance (sample) formula.png")
+```
+
+
+This is the most serious problem with the variance. Although it has some elegant mathematical properties that suggest that it really is a fundamental quantity for expressing variation, it’s completely useless if you want to communicate with an actual human... variances are completely uninterpretable in terms of the original variable! All the numbers have been squared, and they don’t mean anything anymore.
+
+## Standard deviation
+
+We wanted a measure that is expressed in the same units as the data itself.
+
+```{r Standar dev form,echo=FALSE, fig.align='center', fig.cap='Standard deviation formula',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Standard deviation formula.png")
+```
+
+Interpreting standard deviations is slightly more complex. Because the standard deviation is derived
+from the variance, and the variance is a quantity that has little to no meaning that makes sense to us
+humans, the standard deviation doesn’t have a simple interpretation. As a consequence, most of us just
+rely on a simple rule of thumb: in general, you should expect 68% of the data to fall within 1 standard
+deviation of the mean, 95% of the data to fall within 2 standard deviation of the mean, and 99.7% of
+the data to fall within 3 standard deviations of the mean. This rule tends to work pretty well most
+of the time, but it’s not exact: it’s actually calculated based on an assumption that the histogram is
+symmetric and “bell shaped” (see note).
+
+Note: Strictly, the assumption is that the data are normally distributed, which is an important concept that we’ll discuss more in Chapter 9, and will turn up over and over again later in the book.
+
+## 5.2.7 Which measure to use?
+We’ve discussed quite a few measures of spread (range, IQR, MAD, variance and standard deviation),
+and hinted at their strengths and weaknesses. Here’s a quick summary:
+
+* Range. Gives you the full spread of the data. It’s very vulnerable to outliers, and as a consequence
+it isn’t often used unless you have good reasons to care about the extremes in the data.
+
+* Interquartile range. Tells you where the “middle half” of the data sits. It’s pretty robust, and complements the median nicely. This is used a lot.
+
+* Mean absolute deviation. Tells you how far “on average” the observations are from the mean. It’s very interpretable, but has a few minor issues (not discussed here) that make it less attractive to statisticians than the standard deviation. Used sometimes, but not often.
+
+* Variance. Tells you the average squared deviation from the mean. It’s mathematically elegant, and is probably the “right” way to describe variation around the mean, but it’s completely uninterpretable because it doesn’t use the same units as the data. Almost never used except as a mathematical tool; but it’s buried “under the hood” of a very large number of statistical tools.
+
+* Standard deviation. This is the square root of the variance. It’s fairly elegant mathematically, and it’s expressed in the same units as the data so it can be interpreted pretty well. In situations where the mean is the measure of central tendency, this is the default. This is by far the most popular measure of variation.
+
+* Median absolute deviation. The typical (i.e., median) deviation from the median value. In the raw form it’s simple and interpretable; in the corrected form it’s a robust way to estimate the standard deviation, for some kinds of data sets. Not used very often, but it does get reported sometimes. 
+
+In short, the IQR and the standard deviation are easily the two most common measures used to report the variability of the data; but there are situations in which the others are used. I’ve described all of them in this book because there’s a fair chance you’ll run into most of these somewhere.
+
