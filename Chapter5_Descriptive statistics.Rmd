@@ -381,10 +381,175 @@ Correlation coefficient (or, more specifically, Pearson’s correlation coeffici
 
 The correlation coefficient between two variables X and Y (sometimes denoted rXY ), which we’ll define more precisely in the next section, is a measure that varies from -1 to 1. When r =-1 it means that we have a perfect negative relationship, and when r =1 it means we have a perfect positive relationship. When r =0, there’s no relationship at all. If you look at Figure 5.9, you can see several plots showing what different correlations look like.
 
-The formula for the Pearson’s correlation coefficient can be written in several different ways. I think the simplest way to write down the formula is to break it into two steps. Firstly, let’s introduce the idea of a covariance. The covariance between two variables X and Y is a generalisation of the notion of the variance; it’s a mathematically simple way of describing the relationship between two variables that isn’t terribly informative to humans:
+
+```{r types of correlations coef,echo=FALSE, fig.align='center', fig.cap='Illustration of the effect of varying the strength and direction of a correlation. In the left hand column, the correlations are 0, .33, .66 and 1. In the right hand column, the correlations are 0, -.33, -.66 and -1',fig.width=20}
+knitr::include_graphics("images/Chapter 5 correlation coef.png")
+```
+
+The formula for the Pearson’s correlation coefficient can be written in several different ways. I think the simplest way to write down the formula is to break it into two steps. Firstly, let’s introduce the idea of a covariance. The covariance between two variables X and Y is a generalisation of the notion of the variance; it’s a mathematically simple way of describing the relationship between two variables that isn’t terribly informative to humans.
+
+Because we’re multiplying (i.e., taking the “product” of) a quantity that depends on X by a quantity that depends on Y and then averaging, you can think of the formula for the covariance as an “average cross product” between X and Y . 
+
+So, in simpler terms, the covariance formula calculates how much the values of X and Y vary together. 
+
+The covariance has the nice property that, if X and Y are entirely unrelated, then the covariance is exactly zero. If the relationship between them is positive then the covariance is also positive; and if the relationship is negative then the covariance is also negative. In other words, the covariance captures the basic qualitative idea of correlation. 
+
+Unfortunately, the raw magnitude of the covariance isn’t easy to interpret: it depends on the units in which X and Y are expressed, and worse yet, the actual units that the covariance itself is expressed in are really weird. For instance, if X refers to the dan.sleep variable (units: hours) and Y refers to the dan.grump variable (units: grumps), then the units for their covariance are “hours x grumps”. And I have no idea what that would even mean.
+
+Lack of Standardization: Covariation does not provide a standardized measure of association. It is affected by the scales and units of measurement of the variables involved. This can make it difficult to compare the strength of associations across different studies or variables.
+```{r covariance,echo=FALSE, fig.align='center', fig.cap='covariance formula',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Covariance formula.png")
+```
+
+The Pearson correlation coefficient r fixes this interpretation problem by standardising the covariance, in pretty much the exact same way that the z-score standardises a raw score: by dividing by the standard deviation. However, because we have two variables that contribute to the covariance, the standardisation only works if we divide by both standard deviations.In other words, the correlation between X and Y can be written as below.
+
+By doing this standardisation, not only do we keep all of the nice properties of the covariance discussed earlier, but the actual values of r are on a meaningful scale: r “ 1 implies a perfect positive relationship, and r “ ´1 implies a perfect negative relationship.
+
+```{r Pearson coefficient,echo=FALSE, fig.align='center', fig.cap='Pearsons coefficeint',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Persons coefficient formula.png")
+```
+
+
+### 5.7.4 Calculating correlations in R
+
+The simpliest way:
+```{r}
+cor( x = parenthood$dan.sleep, y = parenthood$dan.grump )
+
+parenthood |>
+  ggplot2::ggplot(ggplot2::aes(x=dan.sleep,y=dan.grump)) +
+  ggplot2::geom_point(colour="red")+
+  ggplot2::theme_test()
+```
+
+The function is more powerful
+```{r}
+cor(parenthood)
+```
+
+### 5.7.5 Interpreting a correlation
+
+It depends on what you want to use the data for, and on how strong the correlations in your field tend to be.The interpretation of a correlation depends a lot on the context. 
+
+For instance, one of the benchmark data sets used to test theories of how people judge similarities is so clean that any theory that can’t achieve a correlation of at least .9 really isn’t deemed to be successful. 
+
+That said, the rough guide in Table 5.2 is pretty typical.
+
+```{r Corr interpret,echo=FALSE, fig.align='center', fig.cap='A rough guide to interpreting correlations. Note that I say a rough guide. There aren not hard and fast rules for what counts as strong or weak relationships. It depends on the contex',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Table for correlation interpretation.png")
+```
+
+
+However, something that can never be stressed enough is that you should always look at the scatterplot before attaching any interpretation to the data. A correlation might not mean what you think it means.
+ 
+Anscombe's Quartet refers to a set of four datasets that have nearly identical statistical properties, yet exhibit starkly different distributions and relationships when visualized. The quartet was introduced by the statistician Francis Anscombe in 1973 to emphasize the importance of data visualization and the limitations of relying solely on summary statistics.
+
+```{r Anscombe Quartet,echo=FALSE, fig.align='center', fig.cap='Anscombes Quartet',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Anscombe’s Quartet.png")
+```
+
+
+
+### 5.7.6 Spearman’s rank correlations
+
+The Pearson correlation coefficient is useful for a lot of things, but it does have shortcomings. One issue, in particular, stands out: what it actually measures is the strength of the **linear** relationship between two variables. 
+
+One very common situation where the Pearson correlation isn’t quite the right thing to use arises when an increase in one variable X really is reflected in an increase in another variable Y, but the nature of the relationship isn’t necessarily linear. 
+
+To illustrate, consider the data plotted in Figure 5.11, showing the relationship between hours worked and grade received for 10 students taking some class. The curious thing about this – highly fictitious – data set is that increasing your effort always increases your grade. It might be by a lot or it might be by a little, but increasing effort will never decrease your grade. The data are stored in effort.Rdata:
+
+```{r}
+load( "data/effort.Rdata" )
+who(TRUE)
+
+effort
+```
+
+
+```{r hours worked and grade received,echo=FALSE, fig.align='center', fig.cap='Relation hours worked and grade received',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Non linear relation.png")
+```
+
+
+
+If we run a standard Pearson correlation, it shows a strong relationship between hours worked and grade received but this doesn’t actually capture the observation that increasing hours worked always increases the grade.
+
+There’s a sense here in which we want to be able to say that the correlation is perfect but for a somewhat different notion of what a “relationship” is. What we’re looking for is something that captures the fact that there is a perfect ordinal relationship here. That is, if student 1 works more hours than student 2, then we can guarantee that student 1 will get the better grade. That’s not what a correlation of r “ .91 says at all.
 
 
 ```{r}
-
+cor( effort$hours, effort$grade )
 ```
+
+
+How should we address this? Actually, it’s really easy: if we’re looking for ordinal relationships, all we have to do is treat the data as if it were ordinal scale! So, instead of measuring effort in terms of “hours worked”, lets rank all 10 of our students in order of hours worked. That is, student 1 did the least work out of anyone (2 hours) so they get the lowest rank (rank = 1). Student 4 was the next laziest, putting in only 6 hours of work in over the whole semester, so they get the next lowest rank (rank = 2). Notice that I’m using “rank =1” to mean “low rank”. Sometimes in everyday language we talk about “rank = 1” to mean “top rank” rather than “bottom rank”. So be careful: you can rank “from smallest value to largest value” (i.e., small equals rank 1) or you can rank “from largest value to smallest value” (i.e., large equals rank 1). In this case, I’m ranking from smallest to largest, because that’s the default way that R does it. But in real life, it’s really easy to forget which way you set things up.
+
+```{r rank,echo=FALSE, fig.align='center', fig.cap='Ranj',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Rank.png")
+```
+
+These are identical. The student who put in the most effort got the best grade, the student with the least effort got the worst grade, etc. We can get R to construct these rankings using the rank() function, like this:
+
+```{r}
+hours.rank <- rank( effort$hours ) # rank students by hours worked
+grade.rank <- rank( effort$grade ) 
+```
+
+
+```{r}
+cor( hours.rank, grade.rank )
+```
+
+What we’ve just re-invented is Spearman’s rank order correlation, usually denoted ρ to distinguish it from the Pearson correlation r. We can calculate Spearman’s ρ using R in two different ways. Firstly we could do it the way I just showed, using the rank() function to construct the rankings, and then calculate the Pearson correlation on these ranks. However, that’s way too much effort to do every time. It’s much easier to just specify the method argument of the cor() function.
+```{r}
+cor( effort$hours, effort$grade, method = "spearman")
+```
+
+### 5.7.7 The correlate() function
+
+The function it’s not built to handle non-numeric variables.
+```{r}
+load("data/work.Rdata")
+head(work)
+
+lsr::correlate(work)
+
+#cor(work)
+```
+
+## 5.8 Handling missing values
+
+### 5.8.1 The single variable case
+
+```{r}
+partial <- c(10, 20, NA, 30)
+
+mean( x = partial, na.rm = TRUE )
+```
+
+### 5.8.2 Missing values in pairwise calculations
+```{r}
+load( "data/parenthood2.Rdata" )
+print( parenthood2 )
+
+psych::describe(parenthood)
+psych::describe(parenthood2)
+```
+ If we specify use = "complete.obs", R will completely ignore all cases (i.e., all rows in our parenthood2 data frame) that have any missing values at all. So, for instance, if you look back at the extract earlier when I used the head() function, notice that observation 1 (i.e., day 1) of the parenthood2 data set is missing the value for baby.sleep, but is otherwise complete? Well, if you choose use = "complete.obs" R will ignore that row completely: that is, even when it’s trying to calculate the correlation between dan.sleep and dan.grump, observation 1 will be ignored, because the value of baby.sleep is missing for that observation. 
+
+The other possibility that we care about, and the one that tends to get used more often in practice, is to set use = "pairwise.complete.obs". When we do that, R only looks at the variables that it’s trying to correlate when determining what to drop. So, for instance, since the only missing value for observation 1 of parenthood2 is for baby.sleep R will only drop observation 1 when baby.sleep is one of the variables involved: and so R keeps observation 1 when trying to correlate dan.sleep and dan.grump. 
+```{r}
+cor( parenthood2 )
+
+cor(parenthood2, use = "complete.obs")
+
+cor(parenthood2, use = "pairwise.complete.obs")
+```
+
+The two approaches have different strengths and weaknesses. The “pairwise complete” approach has the advantage that it keeps more observations, so you’re making use of more of your data and (as we’ll
+discuss in tedious detail in Chapter 10) and it improves the reliability of your estimated correlation. On the other hand, it means that every correlation in your correlation matrix is being computed from
+a slightly different set of observations, which can be awkward when you want to compare the different correlations that you’ve got.
+
+So which method should you use? It depends a lot on why you think your values are missing, and probably depends a little on how paranoid you are. 
+
 
