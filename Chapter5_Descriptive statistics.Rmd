@@ -277,5 +277,114 @@ summary(afl.finalists) # result is a frequency table
 ### "Summarising a data frame
 ```{r}
 load("data/clinicaltrial.Rdata")
+
+who(TRUE)
+
+summary(clin.trial)
+```
+
+
+### Describing a data frame
+
+```describe()``` of ```psych``` package, unlike the summary() function, it calculates the same
+descriptive statistics for any type of variable you give it. 
+```{r describe function,echo=FALSE, fig.align='center', fig.cap='describe function',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Describe function.png")
+```
+
+What the ```describe()``` function does is convert factors and logical variables to numeric vectors in order to do the calculations. These variables are marked with * and most of the time, the descriptive statistics for those variables won’t make much sense.
+```{r}
+psych::describe(clin.trial)
+```
+
+## 5.5 Descriptive statistics for each group
+```{r}
+psych::describeBy(x=clin.trial,group = clin.trial$therapy)
+```
+
+What if you have multiple grouping variables? 
+Suppose, for example, you would like to look at the average mood gain separately for all possible combinations of drug and therapy. It is actually possible to do this using the by() and describeBy() functions, but I usually find it more convenient to use the aggregate() function in this situation. There are again three arguments that you need to specify. The formula argument is used to indicate which variable you want to analyse, and which variables are used to specify the groups. For instance, if you want to look at mood.gain separately for each possible combination of drug and therapy, the formula you want is mood.gain ~ drug + therapy. The data argument is used to specify the data frame containing all the data, and the FUN argument is used to indicate what function you want to calculate for each group (e.g., the mean). So, to obtain group means, use this command:
+```{r}
+aggregate(mood.gain ~ drug+therapy, # mood.gain by drug/therapy combination
+          data = clin.trial, # data is in the clin.trial data frame
+          FUN = mean) # print out group means
+```
+
+## Standard scores
+
+Describe my grumpiness by comparing me to other people. Shockingly, out of my friend’s sample of 1,000,000 people, only 159 people were as grumpy as me, suggesting that I’m in the top 0.016% of people for grumpiness. This makes much more sense than trying to interpret the raw data (or saying I am 70% grumpiness). This idea – that we should describe my grumpiness in terms of the overall distribution of the grumpiness of humans – is the qualitative idea that standardisation attempts to get at. 
+
+One way to do this is to do exactly what I just did, and describe everything in terms of percentiles. However, the problem with doing this is that “it’s lonely at the top”. Suppose that my friend had only collected a sample of 1000 people, and this time gotten a mean of 16 out of 50 with a standard deviation of 5, let’s say. The problem is that almost certainly, not a single person in that sample would be as grumpy as me. Percentiles represent the relative position of a data point within a distribution.
+
+However, all is not lost. A different approach is to convert my grumpiness score into a standard
+score, also referred to as a z-score. are a statistical concept used in mathematics to compare and interpret data. They measure the relative position of a particular data point or value within a distribution. The purpose of standard scores is to provide a standardized and normalized representation of data, enabling meaningful comparisons across different datasets.
+
+calculated like this:
+```{r standard scores,echo=FALSE, fig.align='center', fig.cap='standard scores formula',fig.width=20}
+knitr::include_graphics("images/Chapter 5 standard scores.png")
+```
+If the mean is 17 and the standard deviation is 5 then my standardised grumpiness score would be
+```{r}
+z = (35-17)/5
+z
+
+pnorm( 3.6 )
+```
+To interpret this value, recall the rough heuristic that I provided in Section 5.2.5, in which I noted that 99.7% of values are expected to lie within 3 standard deviations of the mean. So the fact that my grumpiness corresponds to a z score of 3.6 indicates that I’m very grumpy indeed. 
+
+Function called ```pnorm()``` allows us to calculate a theoretical percentile rank for my grumpiness (details in secion 9.5), but now it suggests that I’m grumpier than 99.98% of people.
+
+
+## Correlations
+
+So far we have focused entirely on how to construct descriptive statistics for a single variable. Now, how to describe the relationships between variables in the data, i. est. correlation between variables.
+
+### The data
+
+I’m curious to find out how much my infant son’s sleeping habits affect my mood. Let’s say that I can rate my grumpiness very precisely, on a scale from 0 (not at all grumpy) to 100 (grumpy as a very, very grumpy old man). And, lets also assume that I’ve been measuring my grumpiness, my sleeping patterns and my son’s sleeping patterns for quite some time now. Let’s say, for 100 days.  If we load the data...
+```{r}
+load( "data/parenthood.Rdata" )
+who(TRUE)
+
+parenthood
+```
+
+```{r}
+psych::describe(parenthood)
+```
+
+
+```{r sleep data,echo=FALSE, fig.align='center', fig.cap='sleep data',fig.width=20}
+knitr::include_graphics("images/Chapter 5 sleep data.png")
+```
+
+### The strength and direction of a relationship
+
+
+If we compare the scatterplot of “baby.sleep v dan.grump” to the scatterplot of “‘baby.sleep v dan.sleep”, the overall strength of the relationship is the same, but the direction is different. That is, if my son sleeps more, I get more sleep (positive relationship, right hand side), but if he sleeps more then I get less grumpy (negative relationship, left hand side).
+
+```{r}
+parenthood |>
+  ggplot2::ggplot(ggplot2::aes(x=dan.sleep,y=dan.grump)) +
+  ggplot2::geom_point(colour="blue")+
+  ggplot2::theme_test()
+
+parenthood |>
+  ggplot2::ggplot(ggplot2::aes(x=baby.sleep,y=dan.grump)) +
+  ggplot2::geom_point(colour="red")+
+  ggplot2::theme_test()
+```
+
+### The correlation coeficient
+
+Correlation coefficient (or, more specifically, Pearson’s correlation coefficient), which is traditionally denoted by **r**. 
+
+The correlation coefficient between two variables X and Y (sometimes denoted rXY ), which we’ll define more precisely in the next section, is a measure that varies from -1 to 1. When r =-1 it means that we have a perfect negative relationship, and when r =1 it means we have a perfect positive relationship. When r =0, there’s no relationship at all. If you look at Figure 5.9, you can see several plots showing what different correlations look like.
+
+The formula for the Pearson’s correlation coefficient can be written in several different ways. I think the simplest way to write down the formula is to break it into two steps. Firstly, let’s introduce the idea of a covariance. The covariance between two variables X and Y is a generalisation of the notion of the variance; it’s a mathematically simple way of describing the relationship between two variables that isn’t terribly informative to humans:
+
+
+```{r}
+
 ```
 
