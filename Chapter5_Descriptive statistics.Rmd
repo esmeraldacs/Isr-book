@@ -206,7 +206,7 @@ In short, the IQR and the standard deviation are easily the two most common meas
 
 ## 5.3 Skew and kurtosis
 
-Skewness is a measure of asymetry
+**Skewness** is a measure of asymetry
 ```{r skewness,echo=FALSE, fig.align='center', fig.cap='An ilustration of skewness',fig.width=20}
 knitr::include_graphics("images/Chapter 5 Skewness.png")
 ```
@@ -225,11 +225,57 @@ psych::skew( x = afl.margins )
 ```
 
 
+**Kurtosis** is a measure of the “pointiness” of a data set, as illustrated in Figure 5.5.
+By convention, we say that the “normal curve” (black lines) has zero kurtosis, so the pointiness of a data set is assessed relative to this curve
+
+```{r kurtosis,echo=FALSE, fig.align='center', fig.cap='Kurtosis',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Kurtosis.png")
+```
+
+Summarised in the table below
+```{r kurtosis table,echo=FALSE, fig.align='center', fig.cap='Kurtosis table',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Kurtosis  table.png")
+```
 
 
+```{r kurtosis formula,echo=FALSE, fig.align='center', fig.cap='Kurtosis formula',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Kurtosis  formula.png")
+```
 
+R function in ```psych``` package
+```{r}
+psych::kurtosi(afl.margins)
+```
 
+## Getting an overall summary of a variable
+```summary``` function is tricky as it is a generic function. The results will differ quite dramatically depending on the class of the object that you give it
 
+For a numeric object
+```{r}
+class(afl.margins)
+dplyr::glimpse(afl.margins)
 
+summary(afl.margins)
+```
 
+For a logical object
+```{r}
+bl_log <- afl.margins>50
+
+dplyr::glimpse(bl_log)
+
+summary(bl_log)
+```
+
+For a factor object
+```{r}
+dplyr::glimpse(afl.finalists)
+
+summary(afl.finalists) # result is a frequency table
+```
+
+### "Summarising a data frame
+```{r}
+load("data/clinicaltrial.Rdata")
+```
 
