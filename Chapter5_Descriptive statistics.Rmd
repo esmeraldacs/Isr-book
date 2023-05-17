@@ -131,6 +131,7 @@ IQR(afl.margins)
 knitr::include_graphics("images/Chapter 5 Mean absolute deviation.png")
 ```
 
+
 ```{r}
 X <- c(56, 31,56,8,32) # enter the data
 X.bar <- mean( X ) # step 1. the mean of the data
@@ -202,4 +203,33 @@ it isn’t often used unless you have good reasons to care about the extremes in
 * Median absolute deviation. The typical (i.e., median) deviation from the median value. In the raw form it’s simple and interpretable; in the corrected form it’s a robust way to estimate the standard deviation, for some kinds of data sets. Not used very often, but it does get reported sometimes. 
 
 In short, the IQR and the standard deviation are easily the two most common measures used to report the variability of the data; but there are situations in which the others are used. I’ve described all of them in this book because there’s a fair chance you’ll run into most of these somewhere.
+
+## 5.3 Skew and kurtosis
+
+Skewness is a measure of asymetry
+```{r skewness,echo=FALSE, fig.align='center', fig.cap='An ilustration of skewness',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Skewness.png")
+```
+
+The actual formula for the skewness of a data set is as follows:
+where *N* is the number of observations, *X¯* is the sample mean, and *ˆσ* is the standard deviation (the “divide by *N*-1” version, that is). 
+
+Skewness is a measure of asymetry
+```{r skewness formula,echo=FALSE, fig.align='center', fig.cap='Skewness formula',fig.width=20}
+knitr::include_graphics("images/Chapter 5 Skewness formula.png")
+```
+
+a funtion in ```psych``` package
+```{r}
+psych::skew( x = afl.margins )
+```
+
+
+
+
+
+
+
+
+
 
